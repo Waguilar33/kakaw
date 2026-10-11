@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Blade;
 use Kakaw\Contracts\Certifier;
 use Kakaw\Contracts\IssuesTotalCreditNotes;
 use Kakaw\KakawManager;
@@ -70,4 +71,10 @@ it('only names environment keys that the config reads', function () {
     foreach (array_unique($matches[0]) as $key) {
         expect($config)->toContain($key);
     }
+});
+
+it('ships a boost guideline that renders as blade', function () {
+    $rendered = Blade::render(docsContents('resources/boost/guidelines/core.blade.php'));
+
+    expect($rendered)->toContain('Kakaw::certify')->not->toContain('@verbatim');
 });
