@@ -1,10 +1,22 @@
 {
     "name": "waguilar33/kakaw",
     "description": "Facturación electrónica FEL para Guatemala (SAT) en Laravel. Electronic invoicing for Guatemala.",
-    "keywords": ["laravel", "fel", "guatemala", "sat", "factura electronica", "facturacion electronica", "dte", "digifact", "kakaw"],
+    "keywords": [
+        "laravel",
+        "fel",
+        "guatemala",
+        "sat",
+        "factura electronica",
+        "facturacion electronica",
+        "dte",
+        "digifact",
+        "kakaw"
+    ],
     "license": "MIT",
     "authors": [
-        {"name": "Will Aguilar"}
+        {
+            "name": "Will Aguilar"
+        }
     ],
     "require": {
         "php": "^8.3",
@@ -41,7 +53,10 @@
         "laravel": {
             "providers": [
                 "Kakaw\\KakawServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Kakaw": "Kakaw\\Facades\\Kakaw"
+            }
         }
     },
     "config": {
