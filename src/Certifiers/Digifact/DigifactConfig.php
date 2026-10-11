@@ -49,7 +49,7 @@ final readonly class DigifactConfig
             password: self::text($config, 'password'),
             environment: $environment,
             baseUrl: $baseUrl !== '' ? $baseUrl : $environment->baseUrl(),
-            timeout: (int) Arr::get($config, 'timeout', 60),
+            timeout: (int) Arr::get($config, 'timeout', 300),
             connectTimeout: (int) Arr::get($config, 'connect_timeout', 5),
         );
     }

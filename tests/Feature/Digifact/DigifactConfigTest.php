@@ -39,7 +39,7 @@ it('defaults to the test environment and its timeouts', function () {
 
     expect($config->environment)->toBe(Environment::Test)
         ->and($config->baseUrl)->toBe('https://testnucgt.digifact.com/api/')
-        ->and($config->timeout)->toBe(60)
+        ->and($config->timeout)->toBe(300)
         ->and($config->connectTimeout)->toBe(5);
 });
 

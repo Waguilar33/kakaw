@@ -183,6 +183,8 @@ try {
 
 `InvalidDocumentException` is thrown when the `Document` is constructed, before any request is made.
 
+A timeout surfaces as `CertifierException`, and it does not mean the document was not certified: the request may have reached the certifier. Check with the certifier before sending the same document again. The default timeout is 300 seconds for that reason.
+
 ## Money
 
 - Item prices include IVA.
@@ -222,7 +224,7 @@ expect(Kakaw::certify($document)->authorization)->toBe('AUTH-1');
 
 ## Laravel Boost
 
-If you use Laravel Boost, run `php artisan boost:install` and the package's guideline and the `kakaw-development` skill are picked up from `resources/boost`.
+If you use Laravel Boost, run `php artisan boost:install`. Boost reads the package's guideline from `resources/boost/guidelines` and, on Boost versions that support package skills, the `kakaw-development` skill from `resources/boost/skills`.
 
 ## What v1 does not do
 

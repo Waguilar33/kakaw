@@ -13,7 +13,7 @@ return [
             'username' => env('KAKAW_DIGIFACT_USERNAME'),
             'password' => env('KAKAW_DIGIFACT_PASSWORD'),
             'base_url' => env('KAKAW_DIGIFACT_BASE_URL'),
-            'timeout' => (int) env('KAKAW_DIGIFACT_TIMEOUT', 60),
+            'timeout' => (int) env('KAKAW_DIGIFACT_TIMEOUT', 300),
             'connect_timeout' => (int) env('KAKAW_DIGIFACT_CONNECT_TIMEOUT', 5),
         ],
 
