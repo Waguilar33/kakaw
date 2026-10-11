@@ -1,0 +1,55 @@
+{
+    "name": "waguilar33/kakaw",
+    "description": "Facturación electrónica FEL para Guatemala (SAT) en Laravel. Electronic invoicing for Guatemala.",
+    "keywords": ["laravel", "fel", "guatemala", "sat", "factura electronica", "facturacion electronica", "dte", "digifact", "kakaw"],
+    "license": "MIT",
+    "authors": [
+        {"name": "Will Aguilar"}
+    ],
+    "require": {
+        "php": "^8.3",
+        "brick/math": "^0.12 || ^0.13 || ^0.14",
+        "illuminate/cache": "^12.0 || ^13.0",
+        "illuminate/contracts": "^12.0 || ^13.0",
+        "illuminate/http": "^12.0 || ^13.0",
+        "illuminate/support": "^12.0 || ^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.18",
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kakaw\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kakaw\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/pint"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Kakaw\\KakawServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
