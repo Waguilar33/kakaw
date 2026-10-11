@@ -16,6 +16,11 @@ class InvalidConfigurationException extends KakawException
         return new self("The [{$certifier}] certifier is missing configuration: {$missing}.");
     }
 
+    public static function invalid(string $certifier, string $key, string $value): self
+    {
+        return new self("The [{$certifier}] certifier has an invalid [{$key}] value: [{$value}].");
+    }
+
     public static function unknownCertifier(string $name): self
     {
         return new self("Certifier [{$name}] is not configured or its driver is not supported.");
