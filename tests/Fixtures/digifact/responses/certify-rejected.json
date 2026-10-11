@@ -1,0 +1,5 @@
+{
+    "code": 3000,
+    "message": "Error de validacion",
+    "description": "NIT invalido"
+}

@@ -1,0 +1,17 @@
+{
+    "code": 1,
+    "message": "Documento certificado",
+    "description": "OK",
+    "authNumber": "5A1C2B3D-4E5F-4A6B-8C7D-9E0F1A2B3C4D",
+    "batch": "5A1C2B3D",
+    "serial": "1234567",
+    "issuedTimeStamp": "2026-03-01T10:00:05",
+    "enrolledTimeStamp": "2026-03-01T10:00:09",
+    "taxID": "000012345678",
+    "name": "FEL TEST",
+    "receiverTaxID": "CF",
+    "receiverName": "Consumidor Final",
+    "totalAmount": "31.000000",
+    "responseData1": "PGR0ZT5vazwvZHRlPg==",
+    "additionalInfo": {"source": "nuc"}
+}
