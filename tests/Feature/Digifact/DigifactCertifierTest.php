@@ -122,7 +122,7 @@ it('returns a certified document on success', function () {
         ->and($result->raw['authNumber'])->toBe('AUTH-1')
         ->and($result->issuedAt->format('Y-m-d H:i:s P'))->toBe('2026-03-01 10:00:05 -06:00')
         ->and($result->certifiedAt?->format('H:i:s'))->toBe('10:00:09')
-        ->and($result->issuerTaxId)->toBe('000012345678')
+        ->and($result->issuerTaxId)->toBe('12345678')
         ->and($result->issuerName)->toBe('FEL TEST')
         ->and($result->receiverTaxId)->toBe('CF')
         ->and($result->receiverName)->toBe('CONSUMIDOR FINAL')
@@ -309,7 +309,7 @@ it('accepts the minimal documented credit note response', function () {
         ->and($result->receiverTaxId)->toBeNull()
         ->and($result->receiverName)->toBeNull()
         ->and($result->total)->toBeNull()
-        ->and($result->issuerTaxId)->toBe('1234567-8');
+        ->and($result->issuerTaxId)->toBe('12345678');
 });
 
 it('rejects a failed credit note', function () {

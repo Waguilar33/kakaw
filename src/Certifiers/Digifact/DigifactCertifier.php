@@ -5,6 +5,7 @@ namespace Kakaw\Certifiers\Digifact;
 use Brick\Math\BigDecimal;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Kakaw\Contracts\Certifier;
 use Kakaw\Contracts\IssuesTotalCreditNotes;
 use Kakaw\Data\Annulment;
@@ -163,7 +164,7 @@ final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
             number: $response->string('serial') ?? '',
             issuedAt: $this->guatemalaTime($response->string('issuedTimeStamp')) ?? $sentAt,
             certifiedAt: $this->guatemalaTime($response->string('enrolledTimeStamp')),
-            issuerTaxId: $response->string('taxID') ?? $this->config->taxId,
+            issuerTaxId: Nit::normalize(Str::ltrim($response->string('taxID') ?? $this->config->taxId, '0')),
             issuerName: $response->string('name'),
             receiverTaxId: $response->string('receiverTaxID'),
             receiverName: $response->string('receiverName'),
