@@ -77,6 +77,12 @@ A receiver with a NIT:
 $receiver = new Receiver(taxId: '1234567-8', name: 'Cliente, S.A.');
 ```
 
+A receiver without a NIT, identified by CUI (the 13-digit DPI number):
+
+```php
+$receiver = Receiver::withCui('1234567890101', 'Juan Pérez');
+```
+
 `CertifiedDocument` also carries `issuedAt`, `certifiedAt`, `issuerTaxId`, `issuerName`, `receiverTaxId`, `receiverName` and the certifier's decoded response in `raw`.
 
 ## Annul a document
@@ -117,6 +123,8 @@ The result is a `CertifiedDocument`. If the configured certifier cannot issue to
 $taxpayer = Kakaw::taxpayer('1234567-8');
 
 $taxpayer?->name;
+
+$person = Kakaw::taxpayerByCui('1234567890101');
 
 $retrieved = Kakaw::document($certified->authorization);
 

@@ -14,6 +14,7 @@ use Kakaw\KakawManager;
  * @method static \Kakaw\Data\Results\AnnulledDocument annul(\Kakaw\Data\Annulment $annulment)
  * @method static \Kakaw\Data\Results\CertifiedDocument creditNote(\Kakaw\Data\TotalCreditNote $creditNote)
  * @method static \Kakaw\Data\Results\Taxpayer|null taxpayer(string $taxId)
+ * @method static \Kakaw\Data\Results\Taxpayer|null taxpayerByCui(string $cui)
  * @method static \Kakaw\Data\Results\RetrievedDocument|null document(string $authorization)
  * @method static \Kakaw\KakawManager extend(string $driver, \Closure $callback)
  *

@@ -33,6 +33,7 @@ The `Authorization` header carries the raw token, with no `Bearer` prefix.
 | Certify | `POST v2/transform/nuc_json` | Query `TAXID` (padded), `USERNAME` (plain), `FORMAT=XML`. Body is the NUC JSON document. |
 | Annul | `POST CancelFelGT` | Body `TaxId`, `Autorizacion`, `IdReceptor`, `FechaEmisionDocumentoAnular` (`Y-m-d\TH:i:s`), `MotivoAnulacion`, `Username`. |
 | NIT lookup | `GET Shared` | Query `Country=GT`, `Username` (full login username), `TaxID` (padded), `Data1=SHARED_GETINFONITcom`, `Data2=NIT\|{nit}`. |
+| CUI lookup | `GET Shared` | Same as the NIT lookup with `Data1=SHARED_GETINFOCUI`, `Data2=CUI\|{cui}`. |
 | Fetch document | `GET GetDocument` | Query `AUTHNUMBER`, `Username` (full login username), `TaxID` (padded), `FORMAT=XML`. |
 | Total credit note | `POST cert/ncredtotal` | Body `Staxid`, `Authnumber`, `FechaEmision` (`Y-m-d H:i:s`), `MotivoAjuste`, `Formatos=xml`, `Username`, optional `ReferenciaInterna`. |
 
@@ -53,7 +54,7 @@ Certify and total credit note: success is `code` equal to `1`; anything else thr
 | `number` | `serial` |
 | `issuedAt` | `issuedTimeStamp` (falls back to the date sent) |
 | `certifiedAt` | `enrolledTimeStamp` |
-| `issuerTaxId` | `taxID` (falls back to the configured NIT) |
+| `issuerTaxId` | `taxID` without its zero padding (falls back to the configured NIT) |
 | `issuerName` | `name` |
 | `receiverTaxId` | `receiverTaxID` |
 | `receiverName` | `receiverName` |
@@ -64,7 +65,9 @@ A response without `responseData1` or without `authNumber` is treated as a rejec
 
 Annul: success is `Codigo` equal to `1`. `AnnulledDocument` maps `Autorizacion`, `Serie`, `Numero` and `ResponseDATA1` (base64 XML).
 
-NIT lookup: `RESPONSE[0]` with `NIT` and `NOMBRE`; an empty or missing `RESPONSE` returns `null`.
+NIT lookup: `RESPONSE[0]` with `NIT` and `NOMBRE`; an empty or missing `RESPONSE` returns `null`. CUI lookup: the same, with `CUI` in place of `NIT`.
+
+A receiver identified by CUI adds `TaxIDType: CUI` to `Buyer`.
 
 Fetch document: `RESPONSE[0].ResponseData1`, base64 XML; missing returns `null`.
 
@@ -88,16 +91,17 @@ The document is sent in Digifact's NUC JSON format: `Version` (`1.00`), `Country
 
 Digifact's own FACT example is arithmetically inconsistent: one line shows a taxable amount that does not match its total, and one line truncates IVA while the document total rounds. There is no reference to copy for the IVA split, so the driver computes taxable as total divided by 1.12 rounded half-up, and IVA as total minus taxable.
 
-## Unverified on a live call
+## Verified on Digifact's test environment
 
-Tick each off once Digifact credentials work.
+Checked on 2026-10-12.
 
-- [ ] Login returns `Token` and `expira_en` in the expected format.
-- [ ] Certify accepts the ADENDA block as sent.
-- [ ] Certify accepts the six-decimal amounts and the `total - taxable` IVA split.
-- [ ] Certify accepts a receiver with no `AddressInfo`.
-- [ ] Annul accepts the Digifact username in `Username`.
-- [ ] `cert/ncredtotal` accepts the body and returns the certify-shaped response.
-- [ ] `cert/ncredtotal`: `FechaEmision` means the credit note's date (what the driver sends) or the original document's date; the portal does not say.
-- [ ] Which identity fields the credit-note response actually returns; the portal lists fewer than certify does.
-- [ ] NIT lookup returns `NIT` and `NOMBRE` under `RESPONSE[0]`.
+- [x] Login returns `Token` and `expira_en` in the expected format. A token lasts about 30 days. A wrong password answers HTTP 401 with `{"response": "Credenciales incorrectas"}`.
+- [x] Certify accepts the ADENDA block as sent.
+- [x] Certify accepts the six-decimal amounts and the `total - taxable` IVA split. SAT keeps four decimals.
+- [x] Certify accepts a receiver with no `AddressInfo`, identified by NIT, `CF` or CUI.
+- [x] `cert/ncredtotal` accepts the body and returns the certify-shaped response, with the same identity fields.
+- [x] `cert/ncredtotal`: `FechaEmision` is the credit note's own date.
+- [x] NIT lookup returns `NIT` and `NOMBRE` under `RESPONSE[0]`.
+- [x] CUI lookup returns `CUI`, `NOMBRE` and `STATUS` under `RESPONSE[0]`.
+- [x] Fetch document returns the XML under `RESPONSE[0].ResponseData1`.
+- [ ] Annul: not verified. The test environment answered code `9019` ("Error al transmitir anulación a SAT") for every request shape tried.

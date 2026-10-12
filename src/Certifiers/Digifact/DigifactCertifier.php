@@ -15,7 +15,9 @@ use Kakaw\Data\Results\CertifiedDocument;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 use Kakaw\Data\TotalCreditNote;
+use Kakaw\Enums\IdentificationType;
 use Kakaw\Exceptions\CertifierException;
+use Kakaw\Support\Cui;
 use Kakaw\Support\Nit;
 
 final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
@@ -76,19 +78,29 @@ final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
 
     public function taxpayer(string $taxId): ?Taxpayer
     {
+        return $this->lookUp('SHARED_GETINFONITcom', IdentificationType::Nit, Nit::normalize($taxId));
+    }
+
+    public function taxpayerByCui(string $cui): ?Taxpayer
+    {
+        return $this->lookUp('SHARED_GETINFOCUI', IdentificationType::Cui, Cui::normalize($cui));
+    }
+
+    private function lookUp(string $query, IdentificationType $type, string $id): ?Taxpayer
+    {
         $data = $this->client->get('Shared', [
             'Country' => 'GT',
             'Username' => $this->config->loginUsername(),
             'TaxID' => $this->config->paddedTaxId(),
-            'Data1' => 'SHARED_GETINFONITcom',
-            'Data2' => 'NIT|'.Nit::normalize($taxId),
+            'Data1' => $query,
+            'Data2' => "{$type->value}|{$id}",
         ]);
 
         $match = (new DigifactResponse($data))->first('RESPONSE');
-        $nit = $match?->string('NIT');
+        $found = $match?->string($type->value);
         $name = $match?->string('NOMBRE');
 
-        return $nit === null || $name === null ? null : new Taxpayer($nit, $name);
+        return $found === null || $name === null ? null : new Taxpayer($found, $name, $type);
     }
 
     public function document(string $authorization): ?RetrievedDocument

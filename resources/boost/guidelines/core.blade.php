@@ -28,6 +28,7 @@ $certified->authorization;
 Kakaw::annul(new Annulment(authorization: $a, issuerTaxId: $nit, receiverTaxId: 'CF', issuedAt: $issuedAt, reason: $reason));
 Kakaw::creditNote(new TotalCreditNote(authorization: $a, issuerTaxId: $nit, reason: $reason));
 Kakaw::taxpayer('1234567-8');
+Kakaw::taxpayerByCui('1234567890101');
 Kakaw::document($authorization);
 Kakaw::build($credentials)->verifyCredentials();
 </code-snippet>

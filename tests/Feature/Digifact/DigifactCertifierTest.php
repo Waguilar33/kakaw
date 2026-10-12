@@ -21,6 +21,7 @@ use Kakaw\Data\Results\CertifiedDocument;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 use Kakaw\Data\TotalCreditNote;
+use Kakaw\Enums\IdentificationType;
 use Kakaw\Exceptions\CertifierException;
 
 function certifierConfig(): DigifactConfig
@@ -219,13 +220,34 @@ it('looks up a taxpayer with the hyphen-free nit', function () {
 
     expect($result)->toBeInstanceOf(Taxpayer::class)
         ->and($result->taxId)->toBe('12345678')
-        ->and($result->name)->toBe('JUAN PEREZ');
+        ->and($result->name)->toBe('JUAN PEREZ')
+        ->and($result->identificationType)->toBe(IdentificationType::Nit);
 
     Http::assertSent(fn (Request $request) => str_contains($request->url(), 'Country=GT')
         && str_contains($request->url(), 'Username=GT.000012345678.APIUSER')
         && str_contains($request->url(), 'TaxID=000012345678')
         && str_contains($request->url(), 'Data1=SHARED_GETINFONITcom')
         && str_contains($request->url(), 'Data2=NIT%7C12345678'));
+});
+
+it('looks up a person by cui', function () {
+    Http::fake(['*/Shared*' => Http::response(['RESPONSE' => [['PAIS' => 'GT', 'CUI' => '1234567890101', 'NOMBRE' => 'JUAN PEREZ', 'STATUS' => 'A']]])]);
+
+    $result = certifierUnderTest()->taxpayerByCui('1234 56789 0101');
+
+    expect($result)->toBeInstanceOf(Taxpayer::class)
+        ->and($result->taxId)->toBe('1234567890101')
+        ->and($result->name)->toBe('JUAN PEREZ')
+        ->and($result->identificationType)->toBe(IdentificationType::Cui);
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), 'Data1=SHARED_GETINFOCUI&')
+        && str_contains($request->url(), 'Data2=CUI%7C1234567890101'));
+});
+
+it('returns null for an unknown cui', function () {
+    Http::fake(['*/Shared*' => Http::response(['RESPONSE' => []])]);
+
+    expect(certifierUnderTest()->taxpayerByCui('1234567890101'))->toBeNull();
 });
 
 it('returns null for an unknown taxpayer', function (mixed $response) {

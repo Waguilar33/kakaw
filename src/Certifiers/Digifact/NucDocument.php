@@ -8,6 +8,7 @@ use Kakaw\Data\Address;
 use Kakaw\Data\Document;
 use Kakaw\Data\Item;
 use Kakaw\Data\Phrase;
+use Kakaw\Enums\IdentificationType;
 use Kakaw\Enums\ItemType;
 use Kakaw\Support\Amount;
 
@@ -99,6 +100,7 @@ final class NucDocument
 
         return [
             'TaxID' => $receiver->taxId,
+            ...($receiver->identificationType === IdentificationType::Cui ? ['TaxIDType' => IdentificationType::Cui->value] : []),
             'Name' => $receiver->name,
             ...($receiver->address === null ? [] : ['AddressInfo' => self::address($receiver->address)]),
         ];

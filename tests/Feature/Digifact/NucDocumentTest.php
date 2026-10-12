@@ -98,6 +98,16 @@ it('omits the buyer address when the receiver has none', function () {
     expect($payload['Buyer'])->not->toHaveKey('AddressInfo');
 });
 
+it('marks a buyer identified by cui', function () {
+    $nuc = NucDocument::from(nucDocument(Receiver::withCui('1234567890101', 'Juan Perez')));
+
+    expect($nuc['Buyer'])->toBe(['TaxID' => '1234567890101', 'TaxIDType' => 'CUI', 'Name' => 'Juan Perez']);
+});
+
+it('sends no id type for a buyer identified by nit', function () {
+    expect(NucDocument::from(nucDocument(new Receiver('1234567-8', 'Cliente')))['Buyer'])->not->toHaveKey('TaxIDType');
+});
+
 it('maps item discounts', function () {
     $items = collect([new Item('con descuento', 1, 100, discount: 10), new Item('sin descuento', 1, 100)]);
     $payload = NucDocument::from(nucDocument(items: $items));

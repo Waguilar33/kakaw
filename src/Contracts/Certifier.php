@@ -19,5 +19,7 @@ interface Certifier
 
     public function taxpayer(string $taxId): ?Taxpayer;
 
+    public function taxpayerByCui(string $cui): ?Taxpayer;
+
     public function document(string $authorization): ?RetrievedDocument;
 }

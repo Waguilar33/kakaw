@@ -55,6 +55,7 @@ Kakaw::creditNote(new TotalCreditNote(
 ));
 
 Kakaw::taxpayer('1234567-8');
+Kakaw::taxpayerByCui('1234567890101');
 Kakaw::document($certified->authorization);
 ```
 

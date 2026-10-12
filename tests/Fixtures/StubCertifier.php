@@ -10,6 +10,7 @@ use Kakaw\Data\Results\AnnulledDocument;
 use Kakaw\Data\Results\CertifiedDocument;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
+use Kakaw\Enums\IdentificationType;
 
 class StubCertifier implements Certifier
 {
@@ -53,6 +54,13 @@ class StubCertifier implements Certifier
         $this->calls[] = 'taxpayer';
 
         return new Taxpayer($taxId, 'Stub Taxpayer');
+    }
+
+    public function taxpayerByCui(string $cui): ?Taxpayer
+    {
+        $this->calls[] = 'taxpayerByCui';
+
+        return new Taxpayer($cui, 'Stub Taxpayer', IdentificationType::Cui);
     }
 
     public function document(string $authorization): ?RetrievedDocument

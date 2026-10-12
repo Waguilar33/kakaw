@@ -12,7 +12,8 @@ Before writing code, read the certifier's documentation and write down:
 - How success and errors are signalled (HTTP status, a code field, both).
 - What annulment needs as input.
 - Whether a total-credit-note shortcut exists, and what it needs.
-- How to look up a taxpayer by NIT.
+- How to look up a taxpayer by NIT, and a person by CUI.
+- How a receiver identified by CUI is marked in a document.
 - How to fetch a certified document again.
 
 Where the documentation and observed behaviour disagree, record both in the driver's docs page, as `docs/digifact.md` does.
@@ -25,7 +26,7 @@ Use a certifier called `Acme` as the example.
 2. Add a config value object (`AcmeConfig`) with `fromArray(array $config)`. Throw `InvalidConfigurationException::missing()` for absent required keys and `::invalid()` for bad values.
 3. Add a client (`AcmeClient`) that wraps `Illuminate\Http\Client\Factory`. Handle login, token caching and a single retry on an expired token, and throw `AuthenticationException`, `CertifierException::unreachable()` and `CertifierException::unreadable()` for transport problems. Tokens never leave the client.
 4. Add a payload builder (like `NucDocument`) that turns a `Document` into the certifier's request. Format amounts with `Kakaw\Support\Amount::format()`.
-5. Add the certifier class implementing `Kakaw\Contracts\Certifier`: `verifyCredentials()`, `certify()`, `annul()`, `taxpayer()` and `document()`. Throw `CertifierException::rejected()` carrying the certifier's own message when it refuses a request. Return `null` from `taxpayer()` and `document()` when nothing is found.
+5. Add the certifier class implementing `Kakaw\Contracts\Certifier`: `verifyCredentials()`, `certify()`, `annul()`, `taxpayer()`, `taxpayerByCui()` and `document()`. Throw `CertifierException::rejected()` carrying the certifier's own message when it refuses a request. Return `null` from `taxpayer()` and `document()` when nothing is found.
 6. Implement `Kakaw\Contracts\IssuesTotalCreditNotes` on the same class only if the certifier can do it. Further optional abilities are further interfaces, never new methods on `Certifier`.
 7. Register the driver on `KakawManager` by adding a method named after the driver, `create{Studly}Certifier(array $config): Certifier`, so `acme` resolves through `createAcmeCertifier()`. Build the config object, the client and the certifier there, as `createDigifactCertifier()` does.
 8. Add a config block under `kakaw.certifiers` in `config/kakaw.php` with a `driver` key and `KAKAW_ACME_*` environment keys:
