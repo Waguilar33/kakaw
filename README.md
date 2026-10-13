@@ -2,9 +2,43 @@
 
 Facturación electrónica FEL para Guatemala (SAT) en Laravel.
 
-Kakaw issues electronic invoices (FEL, regulated by SAT, the Guatemalan tax authority) from a Laravel application. Certifiers are pluggable drivers behind one contract; v1 ships one, Digifact. You build a `Document`, call `Kakaw::certify()`, and get back the same `CertifiedDocument` whichever certifier is configured.
+**FEL Guatemala Laravel**: Kakaw issues Guatemalan electronic invoices (FEL, regulated by SAT, the tax authority) from a Laravel application.
 
-Nothing has been verified against Digifact live yet. See [docs/digifact.md](docs/digifact.md).
+[![tests](https://github.com/Waguilar33/kakaw/actions/workflows/tests.yml/badge.svg)](https://github.com/Waguilar33/kakaw/actions/workflows/tests.yml)
+
+In Guatemala an invoice is only valid once a certifier authorised by SAT has certified it. Each certifier has its own API. Kakaw puts them behind one Laravel facade, the way `Mail` and `Storage` hide their drivers: you build a `Document`, call `Kakaw::certify()`, and get back the same `CertifiedDocument` whichever certifier is configured. Changing certifier is a configuration change.
+
+The first version ships one certifier, **Digifact**.
+
+## What it does
+
+| | |
+|---|---|
+| Certify an invoice (`FACT`) | `Kakaw::certify($document)` |
+| Invoice a NIT, a CUI (DPI) or a final consumer (`CF`) | `new Receiver(...)`, `Receiver::withCui(...)`, `Receiver::finalConsumer()` |
+| Annul a certified document | `Kakaw::annul($annulment)` |
+| Issue a total credit note | `Kakaw::creditNote($creditNote)` |
+| Look up a name by NIT or by CUI | `Kakaw::taxpayer($nit)`, `Kakaw::taxpayerByCui($cui)` |
+| Fetch a certified document's XML | `Kakaw::document($authorization)` |
+| Read the certifier's record of a document | `Kakaw::status($authorization)` |
+| Prove credentials | `Kakaw::verifyCredentials()` |
+| Use credentials per company, at call time | `Kakaw::build([...])` |
+
+Logging in and renewing the certifier's token happen by themselves.
+
+## How it fits in your application
+
+There are three layers, and your code only touches the first:
+
+1. **Your application and Kakaw exchange PHP objects.** You hand in a `Document` and receive a `CertifiedDocument` with the authorization, series, number, dates and total as fields. These are the same for every certifier.
+2. **Kakaw and the certifier exchange whatever the certifier speaks.** For Digifact that is JSON. The driver translates; your application never sees it.
+3. **The legal invoice is always XML**, as SAT defines it. It comes back in `$certified->xml`.
+
+Kakaw does not store invoices or render PDFs. Save the fields you need and the XML in your own tables, and render the PDF from that XML.
+
+## Status
+
+Every operation has been run against Digifact's test environment except annulment, which that environment rejected for reasons unrelated to the request. Details are in [docs/digifact.md](docs/digifact.md). The package has not been run against production.
 
 ## Requirements
 
@@ -16,6 +50,14 @@ Nothing has been verified against Digifact live yet. See [docs/digifact.md](docs
 ```bash
 composer require waguilar33/kakaw
 php artisan vendor:publish --tag=kakaw-config
+```
+
+Until the package is listed on Packagist, add the repository to your application's `composer.json` first and require `waguilar33/kakaw:dev-main`:
+
+```json
+"repositories": [
+    { "type": "vcs", "url": "https://github.com/Waguilar33/kakaw" }
+]
 ```
 
 The service provider and the `Kakaw` facade are auto-discovered.
@@ -140,7 +182,9 @@ $status?->taxAuthorityReceipt;
 $status?->annulmentReceipt;
 ```
 
-Both return `null` when the certifier finds nothing.
+All of these return `null` when the certifier finds nothing.
+
+`DocumentStatus` carries `type`, `series`, `number`, `status`, `issuedAt`, `certifiedAt`, `issuerTaxId`, `receiverTaxId`, `receiverName`, `total`, `xml`, `reference` and the certifier's record in `raw`. Every field except the authorization can be `null`.
 
 ## Credentials at runtime
 
@@ -210,7 +254,7 @@ A timeout surfaces as `CertifierException`, and it does not mean the document wa
 
 ## Final consumer limit
 
-A document to receiver `CF` in GTQ must total less than Q2,500.00 (Acuerdo Gubernativo 12-2023, numeral 9). Building such a `Document` throws `InvalidDocumentException`. For a larger amount, identify the buyer with a NIT.
+A document to receiver `CF` in GTQ must total less than Q2,500.00 (Acuerdo Gubernativo 12-2023, numeral 9). Building such a `Document` throws `InvalidDocumentException`. For a larger amount, identify the buyer with a NIT or a CUI.
 
 ## Testing
 
@@ -239,9 +283,14 @@ Http::fake([
 expect(Kakaw::certify($document)->authorization)->toBe('AUTH-1');
 ```
 
-## Laravel Boost
+## AI coding assistants
 
-If you use Laravel Boost, run `php artisan boost:install`. Boost reads the package's guideline from `resources/boost/guidelines` and, on Boost versions that support package skills, the `kakaw-development` skill from `resources/boost/skills`.
+Kakaw ships instructions for AI assistants, so one working in your application knows how to use the package correctly.
+
+- **Laravel Boost.** Run `php artisan boost:install` (or `boost:update`) in your application. Boost picks up the guideline in `resources/boost/guidelines` and adds it to your assistant's instructions. On Boost versions that support package skills it also installs the `kakaw-development` skill from `resources/boost/skills`.
+- **Working on the package itself.** [AGENTS.md](AGENTS.md) and [docs/rules.md](docs/rules.md) hold the rules an assistant must follow here, and [docs/adding-a-certifier.md](docs/adding-a-certifier.md) is the procedure for a new certifier.
+
+The package does not include an MCP server of its own. Boost writes these guidelines into your assistant's instruction files.
 
 ## What v1 does not do
 
