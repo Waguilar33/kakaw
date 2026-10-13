@@ -4,7 +4,7 @@ Driver `digifact`, in `src/Certifiers/Digifact/`.
 
 ## Status
 
-Nothing has been verified against Digifact live. Every test uses `Http::fake`. The request shapes come from Digifact's portal documentation and from production behaviour observed in an existing integration. Work through the checklist below the first time working credentials are available.
+Every operation except annulment has been run against Digifact's test environment; see the checklist at the end. The automated tests use `Http::fake`. The request shapes come from Digifact's portal documentation and from production behaviour observed in an existing integration.
 
 ## Credentials
 
