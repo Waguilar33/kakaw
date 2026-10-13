@@ -16,6 +16,7 @@ use Kakaw\KakawManager;
  * @method static \Kakaw\Data\Results\Taxpayer|null taxpayer(string $taxId)
  * @method static \Kakaw\Data\Results\Taxpayer|null taxpayerByCui(string $cui)
  * @method static \Kakaw\Data\Results\RetrievedDocument|null document(string $authorization)
+ * @method static \Kakaw\Data\Results\DocumentStatus|null status(string $authorization)
  * @method static \Kakaw\KakawManager extend(string $driver, \Closure $callback)
  *
  * @see KakawManager

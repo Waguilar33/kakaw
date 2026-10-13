@@ -18,6 +18,7 @@ use Kakaw\Data\Item;
 use Kakaw\Data\Receiver;
 use Kakaw\Data\Results\AnnulledDocument;
 use Kakaw\Data\Results\CertifiedDocument;
+use Kakaw\Data\Results\DocumentStatus;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 use Kakaw\Data\TotalCreditNote;
@@ -248,6 +249,69 @@ it('returns null for an unknown cui', function () {
     Http::fake(['*/Shared*' => Http::response(['RESPONSE' => []])]);
 
     expect(certifierUnderTest()->taxpayerByCui('1234567890101'))->toBeNull();
+});
+
+it('reads the status of a certified document', function () {
+    Http::fake(['*/Shared*' => Http::response(['RESPONSE' => [[
+        'NIT_EMISOR' => '12345678',
+        'TIPO_DTE' => 'FACT',
+        'GUID' => 'ca753dc0-362c-42ac-bdc1-068cfe420cf7',
+        'SERIE' => 'CA753DC0',
+        'NUMERO' => '908870316',
+        'ESTATUS' => '',
+        'FECHA_DE_EMISION' => '10/12/2026 3:02:16 PM',
+        'FECHA_DE_CERTIFICACION' => '10/12/2026 3:02:17 PM',
+        'NIT_COMPRADOR' => 'CF',
+        'NOMBRE_COMPRADOR' => 'Consumidor Final',
+        'TOTAL' => '50.000000',
+        'DTE' => base64_encode('<dte/>'),
+        'ACUSE_RECIBO_SAT_DTE' => 'ACUSE-1',
+        'ACUSE_RECIBO_ANULACION' => '',
+        'ReferenciaInterna' => 'REF-1',
+    ]]])]);
+
+    $status = certifierUnderTest()->status('CA753DC0-362C-42AC-BDC1-068CFE420CF7');
+
+    expect($status)->toBeInstanceOf(DocumentStatus::class)
+        ->and($status->authorization)->toBe('CA753DC0-362C-42AC-BDC1-068CFE420CF7')
+        ->and($status->type)->toBe('FACT')
+        ->and($status->series)->toBe('CA753DC0')
+        ->and($status->number)->toBe('908870316')
+        ->and($status->status)->toBeNull()
+        ->and($status->issuedAt->format('Y-m-d H:i:s P'))->toBe('2026-10-12 15:02:16 -06:00')
+        ->and($status->certifiedAt->format('Y-m-d H:i:s'))->toBe('2026-10-12 15:02:17')
+        ->and($status->issuerTaxId)->toBe('12345678')
+        ->and($status->receiverTaxId)->toBe('CF')
+        ->and($status->receiverName)->toBe('Consumidor Final')
+        ->and((string) $status->total)->toBe('50.000000')
+        ->and($status->xml)->toBe('<dte/>')
+        ->and($status->taxAuthorityReceipt)->toBe('ACUSE-1')
+        ->and($status->annulmentReceipt)->toBeNull()
+        ->and($status->reference)->toBe('REF-1')
+        ->and($status->raw)->toHaveKey('ESTATUS');
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), 'Data1=SHARED_GETDTEINFO')
+        && str_contains($request->url(), 'Data2=AUTHNUMBER%7CCA753DC0-362C-42AC-BDC1-068CFE420CF7')
+        && str_contains($request->url(), 'Username=GT.000012345678.APIUSER')
+        && str_contains($request->url(), 'TaxID=000012345678'));
+});
+
+it('reads a sparse status without failing', function () {
+    Http::fake(['*/Shared*' => Http::response(['RESPONSE' => [['TIPO_DTE' => 'NCRE']]])]);
+
+    $status = certifierUnderTest()->status('auth-1');
+
+    expect($status->authorization)->toBe('AUTH-1')
+        ->and($status->type)->toBe('NCRE')
+        ->and($status->issuedAt)->toBeNull()
+        ->and($status->total)->toBeNull()
+        ->and($status->xml)->toBeNull();
+});
+
+it('returns null for the status of an unknown document', function () {
+    Http::fake(['*/Shared*' => Http::response(['RESPONSE' => []])]);
+
+    expect(certifierUnderTest()->status('00000000-0000-0000-0000-000000000000'))->toBeNull();
 });
 
 it('returns null for an unknown taxpayer', function (mixed $response) {

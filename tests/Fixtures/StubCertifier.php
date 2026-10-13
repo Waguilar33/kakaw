@@ -8,6 +8,7 @@ use Kakaw\Data\Annulment;
 use Kakaw\Data\Document;
 use Kakaw\Data\Results\AnnulledDocument;
 use Kakaw\Data\Results\CertifiedDocument;
+use Kakaw\Data\Results\DocumentStatus;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 use Kakaw\Enums\IdentificationType;
@@ -68,5 +69,12 @@ class StubCertifier implements Certifier
         $this->calls[] = 'document';
 
         return new RetrievedDocument($authorization, '<xml/>');
+    }
+
+    public function status(string $authorization): ?DocumentStatus
+    {
+        $this->calls[] = 'status';
+
+        return null;
     }
 }

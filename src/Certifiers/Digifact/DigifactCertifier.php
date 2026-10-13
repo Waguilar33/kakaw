@@ -12,6 +12,7 @@ use Kakaw\Data\Annulment;
 use Kakaw\Data\Document;
 use Kakaw\Data\Results\AnnulledDocument;
 use Kakaw\Data\Results\CertifiedDocument;
+use Kakaw\Data\Results\DocumentStatus;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 use Kakaw\Data\TotalCreditNote;
@@ -23,6 +24,8 @@ use Kakaw\Support\Nit;
 final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
 {
     private const CERTIFIER = 'digifact';
+
+    private const RECORD_TIME_FORMAT = 'n/j/Y g:i:s A';
 
     public function __construct(
         private readonly DigifactClient $client,
@@ -135,6 +138,44 @@ final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
         return $this->certified(new DigifactResponse($this->client->post('cert/ncredtotal', $body)), $creditNote->issuedAt);
     }
 
+    public function status(string $authorization): ?DocumentStatus
+    {
+        $data = $this->client->get('Shared', [
+            'Country' => 'GT',
+            'Username' => $this->config->loginUsername(),
+            'TaxID' => $this->config->paddedTaxId(),
+            'Data1' => 'SHARED_GETDTEINFO',
+            'Data2' => "AUTHNUMBER|{$authorization}",
+        ]);
+
+        $record = (new DigifactResponse($data))->first('RESPONSE');
+
+        if ($record === null) {
+            return null;
+        }
+
+        $total = $record->string('TOTAL');
+
+        return new DocumentStatus(
+            authorization: Str::upper($record->string('GUID') ?? $authorization),
+            type: $record->string('TIPO_DTE'),
+            series: $record->string('SERIE'),
+            number: $record->string('NUMERO'),
+            status: $record->string('ESTATUS'),
+            issuedAt: $this->recordTime($record->string('FECHA_DE_EMISION')),
+            certifiedAt: $this->recordTime($record->string('FECHA_DE_CERTIFICACION')),
+            issuerTaxId: $record->string('NIT_EMISOR'),
+            receiverTaxId: $record->string('NIT_COMPRADOR'),
+            receiverName: $record->string('NOMBRE_COMPRADOR'),
+            total: $total === null ? null : BigDecimal::of($total),
+            xml: $record->decoded('DTE'),
+            taxAuthorityReceipt: $record->string('ACUSE_RECIBO_SAT_DTE'),
+            annulmentReceipt: $record->string('ACUSE_RECIBO_ANULACION'),
+            reference: $record->string('ReferenciaInterna'),
+            raw: $record->all(),
+        );
+    }
+
     private function certified(DigifactResponse $response, CarbonImmutable $sentAt): CertifiedDocument
     {
         if (! $response->succeeded('code')) {
@@ -189,5 +230,10 @@ final class DigifactCertifier implements Certifier, IssuesTotalCreditNotes
     private function guatemalaTime(?string $value): ?CarbonImmutable
     {
         return $value === null ? null : CarbonImmutable::parse($value, Document::TIMEZONE);
+    }
+
+    private function recordTime(?string $value): ?CarbonImmutable
+    {
+        return $value === null ? null : CarbonImmutable::createFromFormat(self::RECORD_TIME_FORMAT, $value, Document::TIMEZONE);
     }
 }

@@ -6,6 +6,7 @@ use Kakaw\Data\Annulment;
 use Kakaw\Data\Document;
 use Kakaw\Data\Results\AnnulledDocument;
 use Kakaw\Data\Results\CertifiedDocument;
+use Kakaw\Data\Results\DocumentStatus;
 use Kakaw\Data\Results\RetrievedDocument;
 use Kakaw\Data\Results\Taxpayer;
 
@@ -22,4 +23,6 @@ interface Certifier
     public function taxpayerByCui(string $cui): ?Taxpayer;
 
     public function document(string $authorization): ?RetrievedDocument;
+
+    public function status(string $authorization): ?DocumentStatus;
 }
