@@ -9,6 +9,7 @@
 - Look up a person by CUI (the DPI number) with `Kakaw::taxpayerByCui()`.
 - Invoice a receiver identified by CUI with `Receiver::withCui()`.
 - Fetch a certified document with `Kakaw::document()`.
+- Read a document's record and receipts with `Kakaw::status()`.
 - Verify credentials with `Kakaw::verifyCredentials()`.
 - Build a certifier from runtime credentials with `Kakaw::build()`.
 - Register custom certifiers with `Kakaw::extend()`.

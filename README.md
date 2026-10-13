@@ -131,6 +131,15 @@ $retrieved = Kakaw::document($certified->authorization);
 $retrieved?->xml;
 ```
 
+Ask the certifier what it has on record for a document, including the tax authority's receipts:
+
+```php
+$status = Kakaw::status($certified->authorization);
+
+$status?->taxAuthorityReceipt;
+$status?->annulmentReceipt;
+```
+
 Both return `null` when the certifier finds nothing.
 
 ## Credentials at runtime

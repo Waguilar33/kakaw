@@ -34,6 +34,7 @@ The `Authorization` header carries the raw token, with no `Bearer` prefix.
 | Annul | `POST CancelFelGT` | Body `TaxId`, `Autorizacion`, `IdReceptor`, `FechaEmisionDocumentoAnular` (`Y-m-d\TH:i:s`), `MotivoAnulacion`, `Username`. |
 | NIT lookup | `GET Shared` | Query `Country=GT`, `Username` (full login username), `TaxID` (padded), `Data1=SHARED_GETINFONITcom`, `Data2=NIT\|{nit}`. |
 | CUI lookup | `GET Shared` | Same as the NIT lookup with `Data1=SHARED_GETINFOCUI`, `Data2=CUI\|{cui}`. |
+| Document status | `GET Shared` | Same as the NIT lookup with `Data1=SHARED_GETDTEINFO`, `Data2=AUTHNUMBER\|{authorization}`. |
 | Fetch document | `GET GetDocument` | Query `AUTHNUMBER`, `Username` (full login username), `TaxID` (padded), `FORMAT=XML`. |
 | Total credit note | `POST cert/ncredtotal` | Body `Staxid`, `Authnumber`, `FechaEmision` (`Y-m-d H:i:s`), `MotivoAjuste`, `Formatos=xml`, `Username`, optional `ReferenciaInterna`. |
 
@@ -103,5 +104,6 @@ Checked on 2026-10-12.
 - [x] `cert/ncredtotal`: `FechaEmision` is the credit note's own date.
 - [x] NIT lookup returns `NIT` and `NOMBRE` under `RESPONSE[0]`.
 - [x] CUI lookup returns `CUI`, `NOMBRE` and `STATUS` under `RESPONSE[0]`.
+- [x] Document status returns the record under `RESPONSE[0]`, with dates as `n/j/Y g:i:s A` and the XML base64-encoded in `DTE`. On the test environment `ESTATUS` and `ACUSE_RECIBO_SAT_DTE` come back empty.
 - [x] Fetch document returns the XML under `RESPONSE[0].ResponseData1`.
 - [ ] Annul: not verified. The test environment answered code `9019` ("Error al transmitir anulación a SAT") for every request shape tried.

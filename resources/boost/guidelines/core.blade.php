@@ -30,6 +30,7 @@ Kakaw::creditNote(new TotalCreditNote(authorization: $a, issuerTaxId: $nit, reas
 Kakaw::taxpayer('1234567-8');
 Kakaw::taxpayerByCui('1234567890101');
 Kakaw::document($authorization);
+Kakaw::status($authorization);
 Kakaw::build($credentials)->verifyCredentials();
 </code-snippet>
 @endverbatim

@@ -57,9 +57,10 @@ Kakaw::creditNote(new TotalCreditNote(
 Kakaw::taxpayer('1234567-8');
 Kakaw::taxpayerByCui('1234567890101');
 Kakaw::document($certified->authorization);
+Kakaw::status($certified->authorization);
 ```
 
-`certify` and `creditNote` return `CertifiedDocument`; `annul` returns `AnnulledDocument`; `taxpayer` and `document` return `null` when nothing is found.
+`certify` and `creditNote` return `CertifiedDocument`; `annul` returns `AnnulledDocument`; `taxpayer`, `taxpayerByCui`, `document` and `status` return `null` when nothing is found.
 
 ## Runtime credentials
 
